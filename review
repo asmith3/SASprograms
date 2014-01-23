@@ -3,7 +3,7 @@
 %macro review (dataset= , variables= , weight= , by=, globif= , subif= , id= , forcecat= , forcecont= , thresh=56, negthresh=10, report=PDF);
 
 			************************************;
-			/*			Check version		   */
+			/*	   Check version	   */
 			************************************;
 
 %if %sysevalf(&sysver < 9) %then %do;
@@ -12,7 +12,7 @@
 %end;
 
 			************************************;
-			/*		Creating PDF REPORT file   */
+			/*      Creating PDF REPORT file   */
 			************************************;
 
 				ODS listing close;
@@ -24,7 +24,7 @@
 title;
 	
 			************************************;
-			/*    Decompose data input         */
+			/*      Decompose data input       */
 			************************************;
 
 %let library=%scan(&dataset,1,".");
@@ -52,6 +52,7 @@ title;
 			/*need to add: check for existence of variable*/
 
 			/*if has colon, then sql*/
+			
 			%if %substr(&varname,%length(&varname))=: %then %do;  /*write to allow for other characters, such as dashes*/	
 
 						proc sql noprint;
@@ -81,7 +82,7 @@ title;
 
 
 			***********************************************************;
-			/*						Create formats					  */
+			/*			Create formats			  */
 			***********************************************************;
 							proc format;
 								value describe .00000000001 - high = ">0";
@@ -93,7 +94,7 @@ title;
 
 
 			**********************************************************;
-			/*						Declare Report File			     */
+			/*	           Declare Report File			 */
 			**********************************************************;
 
 				ODS escapechar="^" noproctitle;
@@ -101,7 +102,7 @@ title;
 
 
 			***********************************************************;
-			/*						Begin variable loop				  */
+			/*		 Begin variable loop			  */
 			***********************************************************;
 
 	%let k=1;
@@ -121,8 +122,6 @@ title;
 			select count(&varname) into :count from temp;
 		quit;
 
-%put count of distinct &varname: &count; /*for testing*/
-
 		%if &count < &thresh %then %let FLAG=1;
 		%else %let FLAG=0;
 
@@ -130,6 +129,7 @@ title;
 			***************************************;
 			/*  If categorical variable, then do  */
 			***************************************;
+			
 			%if &FLAG=1 %then %do;
 
 				/*Make character for better output*/
@@ -161,13 +161,13 @@ ODS region width=11in height=7in x=0in y=.75in; *body;
 			***************************************;
 		
 			/*Determine the variable format*/
+			
 						proc sql noprint;
 							select type into :type
 								from dictionary.columns
 									where libname = %upcase("&library") and memname=%upcase("&member") and upcase(name)=%upcase("&varname");
 						quit;
 
-%put type for &varname: &type; /*For testing*/
 	
 				%if &type = num %then %do; /*Begin section of numeric continuous data*/
 
